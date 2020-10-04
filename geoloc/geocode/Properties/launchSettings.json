@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "geocode": {
+      "commandName": "Project",
+      "commandLineArgs": "60.60357 15.62597"
+    }
+  }
+}
