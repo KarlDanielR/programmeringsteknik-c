@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using Imageflow.Fluent;
+using System.IO;
 
 namespace Resizer
 {
@@ -31,19 +32,55 @@ namespace Resizer
             // Options-objektet behöver skapas från args
             // https://github.com/commandlineparser/commandline#quick-start-examples
 
-            
+
             // 1. Skala om en bild beroende på angiven breddparameter
             // 2. Lägg till en höjdparameter och skala om beroende på dessa.
             // 3. Lägg till ett skärpefilter om bildens storlek minskas.
             // 4. Lägg till parametrar för färgmättnad, ljusstyrka och kontrast.
+
+            Parser.Default.ParseArguments<Options>(args)
+                  .WithParsed<Options>(Run);
+
         }
 
         static void Run(Options options)
         {
-            using (var job = new ImageJob())
+            using (var stream = File.OpenRead(options.Input)) 
             {
+                var outputFileName = GetOutputFileName(options.Input);
+               
                 
+                using (var outStream = File.OpenWrite(outputFileName))
+                {
+                    using (var job = new ImageJob())
+                    {
+                        job.Decode(stream, false)
+                            .ResizerCommands("height=500&mode=crop")
+                            .ConstrainWithin(300, null)
+                            .ContrastSrgb(10f)
+                            .EncodeToStream(outStream, false, new MozJpegEncoder(90))
+                            .Finish().InProcessAsync()
+                            .Wait();
+
+                            
+                    }
+
+                }
+              
+
+
             }
+           
+        }
+        static string GetOutputFileName(string path)
+        {
+            string directory = Path.GetDirectoryName(path);
+            string fileName = Path.GetFileNameWithoutExtension(path);
+            string extension = Path.GetExtension(path);
+
+            string newFileName = $"{fileName}-resized{extension}";
+
+            return Path.Combine(directory, newFileName);
         }
     }
 }
