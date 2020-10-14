@@ -24,6 +24,18 @@ namespace Search.Client
 
             Console.WriteLine(response.DebugInformation);
 
+            //var result = client.Search(search => search.QueryOnQueryString(options.Query)
+            //                                           .Sort(order => order.Descending(field => field.Rating))
+            //                                           .Take(20));
+
+            //Fråga mot specifikt fält
+            //var result = client.Count(search => search.Query(
+            //                                      query => query.Match(
+            //                                          match => match.Field(field => field.Author)
+            //                                                        .Query("Per Morberg"))));
+
+            var result = client.Search(search => search.QueryOnQueryString("categories:\"Bönor\""));
+
             return 0;
         }
 
